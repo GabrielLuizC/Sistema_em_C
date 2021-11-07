@@ -61,7 +61,7 @@ void menu(){
 				relatorio();
 				break;
 			case 6:
-	
+				vendasEstoque();
 				break;
 		    case 7:
 				printf("\nSAINDO DO SISTEMA ...");
@@ -222,10 +222,9 @@ void editarItem(){
 			if ((procuraid == cadastro.id)) {
 				printf("\nID: %d | ITEM: %s | QUANTIDADE: %.1f | VALOR: R$ %.2f\n", cadastro.id, cadastro.nome, cadastro.quantidade, cadastro.valor);
 				aux = 1;
-				
+				fflush(stdin);
 				fseek(arq, sizeof(struct cadastrar)*-1, SEEK_CUR);
 				printf("\nDIGITE O NOVO NOME: ");
-				fflush(stdin);
 			    gets(cadastro.nome);
 			    
 			    printf("\nDIGITE A NOVA QUANTIDADE SE TIVER SOFRIDO ALTERACAO: ");
@@ -376,11 +375,151 @@ void relatorio(){
 }
 
 void vendasEstoque(){
-	
+	struct cadastrar cadastro;
+	int count = 1;
+	int procuraid = 0;
+	float quantidade;
+	float valorCompra;
+	char confirma;
+	int escolha;
+	float desconto;
+	FILE *arq;
+	    
+    arq = fopen("Estoque.pro", "rb");
+    
+    system("cls");
+    
+    printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+    listar();
+    printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+    printf("\nDIGITE O ID DO PRODUTO QUE DESEJA COMPRAR?? ");
+	scanf("%d", &procuraid);
+    
+    while(fread(&cadastro, sizeof(cadastro),1 , arq) != NULL) 
+	if(cadastro.excluir != '*'){
+		if(procuraid == cadastro.id){
+			printf("\nID: %d | Item: %s | Quantidade: %.1f | Valor: R$ %.2f\n", cadastro.id, cadastro.nome, cadastro.quantidade, cadastro.valor);
+			printf("\nDIGITE A QUANTIDADE DO PRODUTO QUE DESEJA COMPRAR?? ");
+			scanf("%f", &quantidade);
+			
+			valorCompra = quantidade * cadastro.valor;
+			
+			system("cls");
+			
+			printf("=-=-=-=-=-=-=-=-=-=-= CARRINHO DE COMPRAS =-=-=-=-=-=-=-=-=-=-=\n");
+			printf("	PRODUTO SELECIONADO: %s\n", cadastro.nome);
+			printf("	QUANTIDADE SELECIONADA: %.1f\n", quantidade);
+			printf("	VALOR UNITARIO DO PRODUTO: R$ %.2f\n", cadastro.valor);
+			printf("	VALOR TOTAL DA COMPRA: R$ %.2f\n", valorCompra);
+			printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=");
+			
+			printf("\nDESEJA CONFIRMAR A COMPRA?? (s para SIM | n para NAO) :  ");
+			scanf("%s", &confirma);
+			
+			if(confirma == 's' || confirma == 'S'){
+				fseek(arq, sizeof(struct cadastrar)*-1, SEEK_CUR);
+				cadastro.quantidade -= quantidade;
+			    fwrite(&cadastro, sizeof(cadastro), 1, arq);
+			    fseek(arq, sizeof(cadastro)* 0, SEEK_END);
+			    
+			    system("cls");
+			    
+			    metodoPagamento();
+			    
+			    printf("\nESCOLHA UMA FORMA DE PAGAMENTO: ");
+			    scanf("%d", &escolha);
+			    
+			    system("cls");
+			    
+			    switch(escolha){
+			    	case 1:
+			    		printf("=-=-=-=-=-=-=-=-=-=-= CARTAO DE CREDITO =-=-=-=-=-=-=-=-=-=-=\n");
+						printf("		    1 - 1x SEM JUROS\n");
+						printf("		    2 - 2x SEM JUROS\n");
+						printf("		    3 - 3x SEM JUROS\n");
+						printf("		    4 - 4x SEM JUROS\n");
+						printf("		    5 - 5x SEM JUROS\n");
+						printf("		    6 - 6x SEM JUROS\n");
+						printf("		    7 - 7x SEM JUROS\n");
+						printf("		    8 - 8x SEM JUROS\n");
+						printf("		    9 - 9x SEM JUROS\n");
+						printf("		    10 - 10x SEM JUROS\n");
+						printf("	  	    11 - 11x COM JUROS\n");
+						printf("	  	    12 - 12x COM JUROS\n");
+						printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+						
+						printf("\nESCOLHA A FORMA DE PARCELAMENTO: ");
+			    		scanf("%d", &escolha);
+			    		if(escolha == 1) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra);
+			    		if(escolha == 2) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/2);
+			    		if(escolha == 3) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/3);
+			    		if(escolha == 4) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/4);
+			    		if(escolha == 5) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/5);
+			    		if(escolha == 6) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/6);
+			    		if(escolha == 7) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/7);
+			    		if(escolha == 8) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/8);
+			    		if(escolha == 9) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/9);
+			    		if(escolha == 10) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/10);
+			    		if(escolha == 11) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/(11 + 0.5/100));
+			    		if(escolha == 12) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/(12 + 50/100));
+			    		break;
+			    	case 2:
+			    		printf("=-=-=-=-=-=-=-=-=-=-= BOLETO BANCARIO =-=-=-=-=-=-=-=-=-=-=\n");
+						printf("		    1 - 1x COM JUROS\n");
+						printf("		    2 - 2x COM JUROS\n");
+						printf("		    3 - 3x COM JUROS\n");
+						printf("		    4 - 4x COM JUROS\n");
+						printf("		    5 - 5x COM JUROS\n");
+						printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+						
+						printf("\nESCOLHA A FORMA DE PARCELAMENTO: ");
+			    		scanf("%d", &escolha);
+			    		if(escolha == 1) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra);
+			    		if(escolha == 2) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/2 + 5);
+			    		if(escolha == 3) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/3 + 5);
+			    		if(escolha == 4) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/4 + 5);
+			    		if(escolha == 5) printf("\nCOMPRA DE %dx PARCELAS DE: R$ %.2f\n", escolha, valorCompra/5 + 5);
+			    		break;
+					case 3:
+			    		printf("=-=-=-=-=-=-=-=-=-=-= DINHEIRO =-=-=-=-=-=-=-=-=-=\n");
+						printf("	1 - ADICIONAR DESCONTO DE 15 POR CENTO\n");
+						printf("	2 - NAO ADICIONAR DESCONTO\n");
+						printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+						
+						printf("\nESCOLHA A FORMA DE PARCELAMENTO: ");
+			    		scanf("%d", &escolha);
+			    		if(escolha == 1){
+			    			desconto = valorCompra*0.15;
+			    			valorCompra = valorCompra - desconto;
+			    			printf("\nVALOR DA COMPRA DEU UM TOTAL DE: R$ %.2f\n", valorCompra);
+						}
+			    		if(escolha == 2) printf("\nVALOR DA COMPRA DEU UM TOTAL DE: R$ %.2f\n", valorCompra);
+			    		break;
+			    		
+				}
+			}
+			
+			if(confirma == 'n'){
+				printf("COMPRA CANCELADA");
+			}
+		}
+	}
+
+	printf("\nCOMPRA CONFIRMADA COM SUCESSO\n");
+	printf("\nDIGITE 1 PARA VOLTA AO MENU\n");
+	scanf(" ");
+	system("cls");
+	fflush(stdin);
+    fclose(arq);
 }
 
-void metodoPagamento(){
-	
+void metodoPagamento(){	
+	printf("=-=-=-=-=-=-=-=-=-=-= METODO DE PAGAMENTO =-=-=-=-=-=-=-=-=-=-=\n");
+	printf("	  	    1 - CARTAO DE CREDITO\n");
+	printf("		    2 - BOLETO BANCARIO\n");
+	printf("		    3 - PAGAMENTO EM DINHEIRO\n");
+	printf("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n");
+
 }
 		
 
